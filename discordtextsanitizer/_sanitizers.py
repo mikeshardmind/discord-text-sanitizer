@@ -16,7 +16,7 @@ mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
 
 
 def preprocess_text(
-    text: str, *, strip_html: bool = True, fix_directional_overrides=True
+    text: str, *, strip_html: bool = False, fix_directional_overrides=True
 ) -> str:
     """
     Normalizes and fixes Unicode text
@@ -31,7 +31,7 @@ def preprocess_text(
     ----------------
     strip_html: bool
         Whether or not to strip html tags and normalize html entities
-        Default: True
+        Default: False
     fix_directional_overrides: bool
         Whether or not to render text with text overrides removed, equivalently
         Default: True
@@ -45,8 +45,7 @@ def preprocess_text(
     if strip_html:
         text = html_tag_re.sub("", text)
 
-    fx = strip_html or "auto"
-    text = ftfy.fix_text(text, fix_entities=fx)
+    text = ftfy.fix_text(text, fix_entities=strip_html)
 
     if fix_directional_overrides:
         text = get_display(text)
