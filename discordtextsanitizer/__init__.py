@@ -1,1 +1,1 @@
-from .discordtextsanitizer import *
+from ._sanitizers import *
