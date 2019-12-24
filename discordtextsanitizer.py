@@ -3,10 +3,7 @@ import re
 import ftfy
 from bidi.algorithm import get_display
 
-__all__ = [
-    "preprocess_text",
-    "sanitize_mass_mentions",
-]
+__all__ = ["preprocess_text", "sanitize_mass_mentions"]
 
 # Trial and error based detection of characters which are dropped 100% of the time
 discord_drop_re = re.compile(
@@ -14,15 +11,12 @@ discord_drop_re = re.compile(
 )
 
 # Should detect well formed html tags.
-html_tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
+html_tag_re = re.compile(r"(<!--.*?-->|<[^>]*>)")
 mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
 
 
 def preprocess_text(
-    text: str,
-    *,
-    strip_html: bool = True,
-    fix_directional_overrides=True,
+    text: str, *, strip_html: bool = True, fix_directional_overrides=True
 ) -> str:
     """
     Normalizes and fixes Unicode text
