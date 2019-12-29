@@ -12,7 +12,11 @@ discord_drop_re = re.compile(
 
 # Should detect well formed html tags.
 html_tag_re = re.compile(r"(<!--.*?-->|<[^>]*>)")
-mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
+# mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
+# This is obnoxious. Discord is dropping *VALID* unicode 
+# combining characters without telling anyone, then acting on the transformed message.
+# Then also having the gall to say thats not an issue with the API design.
+mass_mention_sanitizer = re.compile(r"@")
 
 
 def preprocess_text(
@@ -59,6 +63,19 @@ def preprocess_text(
 
 def sanitize_mass_mentions(text: str, *, run_preprocess: bool = True, **kwargs) -> str:
     """
+
+    Because discord REFUSES to handle unicode in any sane way,
+    this will also break user mentions because there's just no sane remaining way to do it.
+
+    https://github.com/discordapp/discord-api-docs/issues/1189
+    
+    https://github.com/discordapp/discord-api-docs/issues/1193
+
+    https://github.com/discordapp/discord-api-docs/issues/1241
+    
+    https://github.com/discordapp/discord-api-docs/issues/1276
+    
+
     Parameters
     ----------
     text: str
