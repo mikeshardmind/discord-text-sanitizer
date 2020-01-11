@@ -14,13 +14,13 @@ discord_drop_re = re.compile(
 html_tag_re = re.compile(r"(<!--.*?-->|<[^>]*>)")
 
 #: Trust the content source to not be intentionally abusing this
-mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
+mass_mention_sanitizer = re.compile(r"@(?=everyone|here)")
 
 #: Don't trust any character which couldn't be part of a different mention
-aggresive_mass_mention_sanitizer = re.compile(r"(@)(?![0-9\u200b!])")
+aggresive_mass_mention_sanitizer = re.compile(r"@(?![0-9\u200b!])")
 
 #: This doesn't match all mentions, just all the ones which ping people
-all_mention_sanitizer = re.compile(r"@(?=\u200b)")
+all_mention_sanitizer = re.compile(r"@(?!\u200b)")
 
 
 def preprocess_text(
