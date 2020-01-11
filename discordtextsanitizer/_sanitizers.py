@@ -16,11 +16,11 @@ html_tag_re = re.compile(r"(<!--.*?-->|<[^>]*>)")
 #: Trust the content source to not be intentionally abusing this
 mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
 
-#: Don't trust any character not part of a user mention
-aggresive_mass_mention_sanitizer = re.compile(r"(@)(?:[^0-9\u200b!])")
+#: Don't trust any character which couldn't be part of a different mention
+aggresive_mass_mention_sanitizer = re.compile(r"(@)(?![0-9\u200b!])")
 
 #: This doesn't match all mentions, just all the ones which ping people
-all_mention_sanitizer = re.compile(r"@")
+all_mention_sanitizer = re.compile(r"@(?=\u200b)")
 
 
 def preprocess_text(
@@ -75,8 +75,11 @@ def sanitize_mass_mentions(
 ) -> str:
     """
 
-    Because discord REFUSES to handle unicode in any sane way,
-    this will also break user mentions because there's just no sane remaining way to do it.
+    Because Discord refuses to handle unicode in any sane way,
+    the only fully safe options will also break user mentions email addresses, etc
+    because there's just no sane remaining way to do it.
+
+    Options are provided based on your threat model to break as little as possible.
 
     https://github.com/discordapp/discord-api-docs/issues/1189
     
@@ -102,7 +105,7 @@ def sanitize_mass_mentions(
         non breaking spaces
         Default: False
     users: bool
-        Don't allow user mentions either
+        Don't allow user mentions either. This is shorthand for @ -> @\u200b
         Default: False
     **kwargs:
         Passthrough kwargs for ``preproccess_text``
