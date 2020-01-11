@@ -5,18 +5,22 @@ from bidi.algorithm import get_display
 
 __all__ = ["preprocess_text", "sanitize_mass_mentions"]
 
-# Trial and error based detection of characters which are dropped 100% of the time
+#: Trial and error based detection of characters which are dropped 100% of the time
 discord_drop_re = re.compile(
     r"[\u202e|\ud800|\udb7f|\udb80|\udbff|\udc00|\udfff|\U000e0195-\U000e01ef]"
 )
 
-# Should detect well formed html tags.
+#: Should detect well formed html tags.
 html_tag_re = re.compile(r"(<!--.*?-->|<[^>]*>)")
-# mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
-# This is obnoxious. Discord is dropping *VALID* unicode 
-# combining characters without telling anyone, then acting on the transformed message.
-# Then also having the gall to say thats not an issue with the API design.
-mass_mention_sanitizer = re.compile(r"@")
+
+#: Trust the content source to not be intentionally abusing this
+mass_mention_sanitizer = re.compile(r"(@)(?=everyone|here)")
+
+#: Don't trust any character not part of a user mention
+aggresive_mass_mention_sanitizer = re.compile(r"(@)(?:[^0-9\u200b!])")
+
+#: This doesn't match all mentions, just all the ones which ping people
+all_mention_sanitizer = re.compile(r"@")
 
 
 def preprocess_text(
@@ -61,7 +65,14 @@ def preprocess_text(
     return text
 
 
-def sanitize_mass_mentions(text: str, *, run_preprocess: bool = True, **kwargs) -> str:
+def sanitize_mass_mentions(
+    text: str,
+    *,
+    run_preprocess: bool = True,
+    aggresive: bool = False,
+    users: bool = False,
+    **kwargs,
+) -> str:
     """
 
     Because discord REFUSES to handle unicode in any sane way,
@@ -86,9 +97,20 @@ def sanitize_mass_mentions(text: str, *, run_preprocess: bool = True, **kwargs) 
     run_preprocess: bool
         Normalize text using ``preprocess_text`` prior to sanitizing
         Default: True
+    aggresive: bool
+        Don't trust the content source not to be abusive, will more agressively add
+        non breaking spaces
+        Default: False
+    users: bool
+        Don't allow user mentions either
+        Default: False
     **kwargs:
         Passthrough kwargs for ``preproccess_text``
     """
     if run_preprocess:
         text = preprocess_text(text, **kwargs)
+    if users:
+        return all_mention_sanitizer.sub("@\u200b", text)
+    if aggresive:
+        return aggresive_mass_mention_sanitizer.sub("@\u200b", text)
     return mass_mention_sanitizer.sub("@\u200b", text)

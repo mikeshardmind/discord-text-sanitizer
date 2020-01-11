@@ -8,10 +8,21 @@ Text sanitization suitable for discord bots.
 import discordtextsanitizer as dts
 
 # If using a library which already handles raw @everyone and @here mentions
-discord_safer = dts.preprocess_text(unsafe_content)
+discord_safeish = dts.preprocess_text(unsafe_content)
 
 # If interacting directly
-discord_safest = dts.sanitize_mass_mentions(unsafe_content, run_preprocess=True)
+discord_safer = dts.sanitize_mass_mentions(unsafe_content, run_preprocess=True)
+
+# If you're taking in content from users and not services, you may want to use:
+discord_even_safer = dts.sanitize_mass_mentions(
+    unsafe_content, run_preprocess=True, agressive=True
+)
+# or even
+discord_safest = dts.sanitize_mass_mentions(
+    unsafe_content, run_preprocess=True, users=True
+)
+# This may insert more characters, but is still the safest option until discord
+# Fully documents their sanitization.
 
 # Want to cleanup html tag and replace entities?
 # (included for fuller sanitization of web fetched content for discord)
