@@ -52,8 +52,10 @@ After some trial and error, I have a list of characters which Discord removes co
 
 There were many characters dropped inconsistently.
 
-I've also found that I couldn't cause NFC normalized unicode to drop anything other than
+Originally, following the misleading documentation Discord has,
+I've found that I couldn't cause NFC normalized unicode to drop anything other than
 the characters which were dropped consistently.
+(Note: This was short lived, and a counterexample has since been found)
 However, this includes right to left overrides, which may be useful for globaly sourced content.
 
 Rather than reimplement NFC normalization, and directional override removal, this uses two

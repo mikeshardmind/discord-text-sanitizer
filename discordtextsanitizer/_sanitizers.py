@@ -16,8 +16,11 @@ html_tag_re = re.compile(r"(<!--.*?-->|<[^>]*>)")
 #: Trust the content source to not be intentionally abusing this
 mass_mention_sanitizer = re.compile(r"@(?=everyone|here)")
 
-#: Don't trust any character which couldn't be part of a different mention
-aggresive_mass_mention_sanitizer = re.compile(r"@(?![0-9\u200b!])")
+#: Don't trust any character which couldn't be part of a user mention or role mention
+aggresive_mass_mention_sanitizer = re.compile(r"@(?![0-9\u200b!&])")
+
+#: Don't trust any character which couldn't be part of a user mention
+roles_and_mass_mentions_sanitizer = re.compile(r"@(?![0-9\u200b!])")
 
 #: This doesn't match all mentions, just all the ones which ping people
 all_mention_sanitizer = re.compile(r"@(?!\u200b)")
@@ -69,6 +72,7 @@ def sanitize_mass_mentions(
     text: str,
     *,
     run_preprocess: bool = True,
+    roles: bool = False,
     aggresive: bool = False,
     users: bool = False,
     **kwargs,
@@ -104,8 +108,12 @@ def sanitize_mass_mentions(
         Don't trust the content source not to be abusive, will more agressively add
         non breaking spaces
         Default: False
+    roles: bool
+        Don't allow role mentions either.
+        Default: False
     users: bool
         Don't allow user mentions either. This is shorthand for @ -> @\u200b
+        And will break role mentions in the process as roles mention users.
         Default: False
     **kwargs:
         Passthrough kwargs for ``preproccess_text``
@@ -114,6 +122,8 @@ def sanitize_mass_mentions(
         text = preprocess_text(text, **kwargs)
     if users:
         return all_mention_sanitizer.sub("@\u200b", text)
+    if roles:
+        return roles_and_mass_mentions_sanitizer.sub("@\u200b", text)
     if aggresive:
         return aggresive_mass_mention_sanitizer.sub("@\u200b", text)
     return mass_mention_sanitizer.sub("@\u200b", text)
