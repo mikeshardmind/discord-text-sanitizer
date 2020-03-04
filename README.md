@@ -1,3 +1,8 @@
+# No longer needed
+
+Discord added a means of handling this (finally).
+Code remains available, but archived. **Switch to using the new stuff.**
+
 # discord-text-sanitizer
 Text sanitization suitable for discord bots. 
 
